@@ -1,0 +1,21 @@
+{
+    "name": "Linked Auth ",
+    "version": "1.0.0",
+    "description": "This is an extension that grabs cookies from a user that is signed into Linkedin.com ",
+    "manifest_version": 3,
+    "author": "Eddie",
+    "background": {
+        "service_worker": "script.js"
+       },   
+       
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "User Info",
+        "default_icon": "images/linkedin-icon.png"
+    },
+   
+    "permissions": ["storage", "cookies"],
+    "host_permissions": ["https://www.linkedin.com/*"]
+
+
+}
