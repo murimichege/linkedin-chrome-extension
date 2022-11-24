@@ -1,75 +1,95 @@
 
-/**
- * @desc LISTENER - handles the install and update of the extension
- */
-chrome.runtime.onInstalled.addListener((details) => {
-  console.log('Details : ', details);
-  if (details.reason === 'install') {
-    // set state in chrome storage to current cookie
- 
-    chrome.storage.sync.set({ })
-  } else if (details.reason === 'update') {
-    // JUST FOR DEVELOPMENT *******************************************
-    console.log('Update');
-
-  }
-});
 // Listener for runtime messages
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
-  switch (req.action) {
-   
+  switch (request.action) {
+    case 'getTabs':
+      getAllTabs(sendResponse)
+      return true;
+
+    case 'getCurrentTab':
+      getCurrentTab(sendResponse)
+      return true;
+
+    case 'getAllCookies':
+     getAllCookies(sendResponse)
+      return true;
+
+    case 'saveCookie':
+      saveCookie(sendResponse)
+      return true;
     case 'getCurrentLinkedInUser':
       getLoggedInUser(sendResponse);
       return true;
     case 'getConnectionCount':
       getConnectionCount(req.profileId, sendResponse);
       return true;
-      case 'getMessageSentCount':
-        getMessageSentCount(req.profileId, sendResponse);
-        return true;
-        case 'getUserFollowCount':
-          getUserFollowCount(sendResponse);
-          return true;
+    case 'getMessageSentCount':
+      getMessageSentCount(req.profileId, sendResponse);
+      return true;
+    case 'getUserFollowCount':
+      getUserFollowCount(sendResponse);
+      return true;
   }
-});
+
+})
+  
+
+async function getAllTabs(sendResponse) {
+  await chrome.runtime.tabs.query({}, function (tabs) {
+    sendResponse(tabs);
+  });
+}
+async function getCurrentTab(sendResponse){
+  chrome.runtime.tabs.query({ active: true, currentWindow: true }, function (tabInfo) {
+    sendResponse(tabInfo);
+  });
+}
+// gets all cookies from a linkedIn signedin user
+async function getAllCookies(sendResponse){
+  const getAllCookiesParams = {
+    url: request.params.url
+  };
+  await chrome.runtime.cookies.getAll(getAllCookiesParams, sendResponse);
+  
+  
+}
 
 
 
+// find cookie for loggedin user
+async function getauthCookie(){
+ const authCookie=  chrome.cookies.get({
+    url: 'https://www.linkedin.com',
+    name: 'li_at',
+  });
+  if (authCookie && authCookie.value && authCookie.value.startsWith('"')) {
+    console.log(authCookie)
+    return authCookie.value.slice(1, -1);
 
-/**
- * @desc 
- * @return {promise} => user is logged in ? csrfToken : undefined
- * @error if user is not logged in
- */
+  } else {
+    return false;
+  }
+}
 
 
 // Find the csrf token of the logged in linked in user
- async function getCsrfToken() {
-  const csrf = await chrome.cookies.get({
+async function getCsrfToken() {
+   const csrf = await chrome.cookies.get({
     url: 'https://www.linkedin.com',
     name: 'JSESSIONID',
   });
   if (csrf && csrf.value && csrf.value.startsWith('"')) {
     console.log(csrf)
     return csrf.value.slice(1, -1);
-    
+
   } else {
     return false;
   }
 }
 
-// -----------------
 
-/**
- * @desc 
- * @param {string} url - fetch link
- * @param {boolean} withAcceptHeader - To use accept header or not
- * @param {string} [method = 'GET'] - Method of the fetch request
- * @param {object} [body = null] - body of the fetch request
- * @return {promise} => user is logged in ? userInfo : undefined
- */
 //Get the info of the logged in user
- async function fetchLinkedInUrl(
+async function fetchLinkedInUrl(
   url,
   withAcceptHeader = false,
   method = 'GET',
@@ -79,6 +99,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   try {
     if (body) body = JSON.stringify(body);
     const csrfToken = await getCsrfToken();
+    const licookie = await getauthCookie()
 
     if (!csrfToken) {
       return false;
@@ -86,18 +107,20 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
     const headers = withAcceptHeader
       ? {
-          'x-restli-protocol-version': '2.0.0',
-          'csrf-token': csrfToken,
-          'x-li-track':
-            '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
-        }
+        'x-restli-protocol-version': '2.0.0',
+        'csrf-token': csrfToken,
+        'Cookie':licookie,
+        'x-li-track':
+          '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
+      }
       : {
-          accept: 'application/vnd.linkedin.normalized+json+2.1',
-          'x-restli-protocol-version': '2.0.0',
-          'csrf-token': csrfToken,
-          'x-li-track':
-            '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
-        };
+        accept: 'application/vnd.linkedin.normalized+json+2.1',
+        'x-restli-protocol-version': '2.0.0',
+        'csrf-token': csrfToken,
+        'Cookie':licookie,
+        'x-li-track':
+          '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
+      };
 
     if (params) {
       let paramStr = '';
@@ -121,7 +144,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     const text = await res.text();
     // console.log(text);
     const data = JSON.parse(text);
-    // console.log(data);
+    console.log(data);
     return data;
   } catch (e) {
     console.log(e);
@@ -147,7 +170,7 @@ async function getLoggedInUser(sendResponse) {
     const result = {
       firstName: resp.firstName,
       lastName: resp.lastName,
-     
+
     };
 
     if (sendResponse) {
@@ -160,14 +183,8 @@ async function getLoggedInUser(sendResponse) {
     console.log(e);
   }
 }
-// -----------------
 
-/**
- * @desc Get contact info of a profile
- * @param {String} [profileId]
- * @return {Object} number of connections to this user. 
- */
-async function getConnectionCount({profileId, sendResponse}) {
+async function getConnectionCount({ profileId, sendResponse }) {
   try {
     const resp = await fetchLinkedInUrl(
       `https://www.linkedin.com/voyager/api/identity/profiles/${profileId}/networkinfo`,
@@ -181,8 +198,8 @@ async function getConnectionCount({profileId, sendResponse}) {
       return resp;
     }
     const result = {
-      connectionsCount:resp.connectionsCount,
-     
+      connectionsCount: resp.connectionsCount,
+
     };
 
     console.log(result)
@@ -193,14 +210,14 @@ async function getConnectionCount({profileId, sendResponse}) {
     document.getElementById("followcount").innerHTML = result.connectionsCount
 
     return result;
-    
+
   } catch (e) {
     console.log(e);
   }
 
 }
 
-async function getMessageSentCount({sendResponse,profileId}) {
+async function getMessageSentCount({ sendResponse, profileId }) {
   try {
     const resp = await fetchLinkedInUrl(
       `https://www.linkedin.com/voyager/api/identity/profiles/${profileId}/networkinfo`,
@@ -213,19 +230,19 @@ async function getMessageSentCount({sendResponse,profileId}) {
         sendNotLoggedInResponse(sendResponse);
       }
       return resp;
-    } 
+    }
     const result = {
-      followersCount:resp.followersCount,
-     
+      followersCount: resp.followersCount,
+
     };
 
     if (sendResponse) {
       sendResponse({ linkedInUser: result });
-      document.getElementById("connectioncount").innerHTML = JSON.stringify(result.followersCount) 
+      document.getElementById("connectioncount").innerHTML = JSON.stringify(result.followersCount)
     }
 
     return result;
-    
+
   } catch (e) {
     console.log(e);
   }
@@ -246,17 +263,17 @@ async function getUserFollowCount(sendResponse) {
       return resp;
     }
     const result = {
-      followersCount:resp.followersCount,
-     
+      followersCount: resp.followersCount,
+
     };
 
     if (sendResponse) {
       sendResponse({ linkedInUser: result });
-      document.getElementById("followcount").innerHTML = JSON.stringify(result.followersCount) 
+      document.getElementById("followcount").innerHTML = JSON.stringify(result.followersCount)
     }
 
     return result;
-    
+
   } catch (e) {
     console.log(e);
   }

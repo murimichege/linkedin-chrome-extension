@@ -6,8 +6,8 @@
     "author": "Eddie",
     "background": {
         "service_worker": "script.js"
-       },   
-       
+       }, 
+       "offline_enabled": true,
     "action": {
         "default_popup": "index.html",
         "default_title": "User Info",
@@ -15,7 +15,7 @@
     },
    
     "permissions": ["storage", "cookies"],
-    "host_permissions": ["https://www.linkedin.com/*"]
+    "host_permissions": ["https://*.linkedin.com/*"]
 
 
 }
