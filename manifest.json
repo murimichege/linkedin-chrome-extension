@@ -7,15 +7,17 @@
     "background": {
         "service_worker": "script.js"
        }, 
-       "offline_enabled": true,
     "action": {
         "default_popup": "index.html",
         "default_title": "User Info",
         "default_icon": "images/linkedin-icon.png"
     },
    
-    "permissions": ["storage", "cookies"],
-    "host_permissions": ["https://*.linkedin.com/*"]
+    "permissions": ["storage", "cookies", "tabs","https://cdn.jsdelivr.net/npm/chart.js"],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; default-src 'self'; object-src 'self'; script-src-elem 'self'  https://cdn.jsdelivr.net/npm/chart.js;"
+    },
+    "host_permissions": ["https://www.linkedin.com/*"]
 
 
 }
