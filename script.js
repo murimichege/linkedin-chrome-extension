@@ -23,22 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   })
   
-  // Find the csrf token of the logged in linked in user
-  async function getCookie() {
-    const licookie = await chrome.cookies.get({
-      url: 'https://www.linkedin.com',
-      name: 'li_at',
-      
-    });
-    if (licookie && licookie.value && licookie.value.startsWith('"')) {
-      
-      return licookie.value.slice(1, -1);
   
-    } else {
-      return false;
-    }
-
-  }
   // Find the csrf token of the logged in linked in user
   async function getCsrfToken() {
     const csrf = await chrome.cookies.get({
@@ -70,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       if (body) body = JSON.stringify(body);
       const csrfToken = await getCsrfToken();
-      const li_cookie = await getCookie()
   
 
       if (!csrfToken) {
@@ -81,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
         ? {
           'x-restli-protocol-version': '2.0.0',
           'csrf-token': csrfToken,
-          'Cookie':li_cookie,
           'x-li-track':
             '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
         }
@@ -89,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
           accept: 'application/json',
           'x-restli-protocol-version': '2.0.0',
           'csrf-token': csrfToken,
-          'Cookie':li_cookie,
           'x-li-track':
             '{"clientVersion":"1.5.*","osName":"web","timezoneOffset":1,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
         };
