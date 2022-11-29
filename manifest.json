@@ -1,23 +1,26 @@
 {
-    "name": "Linked Auth ",
-    "version": "1.0.0",
-    "description": "This is an extension that grabs cookies from a user that is signed into Linkedin.com ",
+    
     "manifest_version": 3,
-    "author": "Eddie",
+    "name": "LinkedIn",
+    "version": "0.1.0",
+    "description": "Get cookies from LinkedIn",
+    "permissions": ["tabs", "cookies", "storage","activeTab"],
+    "host_permissions": ["https://*.linkedin.com/*"],
     "background": {
-        "service_worker": "script.js"
-       }, 
+        "service_worker": "./background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*.linkedin.com/*"],
+            "js": ["contentScript.js", "chart.min.js"]
+        }
+    ],
     "action": {
         "default_popup": "index.html",
-        "default_title": "User Info",
+        "default_title": "LinkedIn Stats",
         "default_icon": "images/linkedin-icon.png"
-    },
-   
-    "permissions": ["storage", "cookies", "tabs","https://cdn.jsdelivr.net/npm/chart.js"],
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; default-src 'self'; object-src 'self'; script-src-elem 'self'  https://cdn.jsdelivr.net/npm/chart.js;"
-    },
-    "host_permissions": ["https://www.linkedin.com/*"]
+    }
 
+  
 
 }
