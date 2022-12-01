@@ -49,7 +49,7 @@ chrome.tabs.onActivated.addListener((tab) => {
           const { entityUrn } = profileDetails
 
           // profile id
-          profileID = entityUrn.split(":")[3]
+          let profileID = entityUrn.split(":")[3]
 
 
           // get the number of users following
@@ -103,12 +103,17 @@ chrome.tabs.onActivated.addListener((tab) => {
 
           console.log("metrics", metrics)
 
-          // sendMessage
+// wait for tab to fully load
+        chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {          
+            if (changeInfo.status == 'complete') {   
+                         // sendMessage
           chrome.tabs.query({currentWindow:true, active:true},(tabs) => {
-            var activeTab = tabs[0]
-            chrome.tabs.sendMessage(activeTab.id,metrics)
+            chrome.tabs.sendMessage(tabs[0]?.id,{metrics:metrics},(response) => {
+                console.log(response)
+            })
         })
-
+            }
+         });
 
       }
   })
