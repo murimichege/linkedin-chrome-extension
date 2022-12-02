@@ -4,7 +4,7 @@
     "name": "LinkedIn",
     "version": "0.1.0",
     "description": "Get cookies from LinkedIn",
-    "permissions": ["tabs", "cookies", "storage","activeTab"],
+    "permissions": ["tabs", "cookies", "storage","activeTab", "storage"],
     "host_permissions": ["https://*.linkedin.com/*"],
     "background": {
         "service_worker": "./background.js"
@@ -12,7 +12,8 @@
     "content_scripts": [
         {
             "matches": ["https://*.linkedin.com/*"],
-            "js": ["contentScript.js", "chart.min.js"]
+            "js": ["contentScript.js", "chart.min.js"]           
+
         }
     ],
     "action": {

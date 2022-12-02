@@ -103,13 +103,12 @@ chrome.tabs.onActivated.addListener((tab) => {
 
           console.log("metrics", metrics)
 
-// wait for tab to fully load
+// wait for tab to fully
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {          
             if (changeInfo.status == 'complete') {   
                          // sendMessage
           chrome.tabs.query({currentWindow:true, active:true},(tabs) => {
-            chrome.tabs.sendMessage(tabs[0]?.id,{metrics:metrics},(response) => {
-                console.log(response)
+            chrome.tabs.sendMessage(tabs[0]?.id,{metrics:metrics},() => {
             })
         })
             }
