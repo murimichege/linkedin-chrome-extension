@@ -1,27 +1,23 @@
 {
-    
     "manifest_version": 3,
     "name": "LinkedIn",
     "version": "0.1.0",
     "description": "Get cookies from LinkedIn",
-    "permissions": ["tabs", "cookies", "storage","activeTab", "storage"],
+    "permissions": ["tabs", "cookies", "storage", "activeTab", "storage"],
     "host_permissions": ["https://*.linkedin.com/*"],
     "background": {
-        "service_worker": "./background.js"
+      "service_worker": "./background.js"
     },
     "content_scripts": [
-        {
-            "matches": ["https://*.linkedin.com/*"],
-            "js": ["contentScript.js", "chart.min.js"]           
-
-        }
+      {
+        "matches": ["https://*.linkedin.com/*"],
+        "js": ["chart.min.js", "contentScript.js"]
+      }
     ],
     "action": {
-        "default_popup": "index.html",
-        "default_title": "LinkedIn Stats",
-        "default_icon": "images/linkedin-icon.png"
+      "default_popup": "index.html",
+      "default_title": "LinkedIn Stats",
+      "default_icon": "images/linkedin-icon.png"
     }
-
+  }
   
-
-}
