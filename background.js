@@ -13,12 +13,7 @@ chrome.tabs.onActivated.addListener((tab) => {
   
         // console.log("ss", jsessionID.value.replace(/(^"|"$)/g, ''));
   
-        // LI_AT
-        let li_at = await chrome.cookies.get({
-          url: 'https://www.linkedin.com/*',
-          name: 'li_at',
-        });
-  
+      
         // console.log(li_at.value);
   
         // get current logged in user details
@@ -86,9 +81,9 @@ chrome.tabs.onActivated.addListener((tab) => {
   
         console.log('metrics', metrics);
   
-        chrome.runtime.sendMessage({ metrics: metrics });
+        // chrome.runtime.sendMessage({ metrics: metrics });
   
-        // wait for tab to fully
+        // // wait for tab to fully load
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
           if (changeInfo.status == 'complete') {
             // sendMessage
