@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LinkedIn",
+  "name": "Realply Extension",
   "version": "0.1.0",
-  "description": "LinkedIn User Metrics",
+  "description": "Realply User Metrics",
   "permissions": ["tabs", "cookies", "activeTab"],
   "host_permissions": ["https://*.linkedin.com/*"],
   "action": {
